@@ -1,3 +1,5 @@
+import java.net.URI
+
 pluginManagement {
     repositories {
         google {
@@ -9,16 +11,25 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("https://jfrog.amani.ai/artifactory/amani-biomatch-sdk/")
+        }
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://jfrog.amani.ai/artifactory/amani-biomatch-sdk/")
+        }
+        maven {
+            url = URI("https://jfrog.amani.ai/artifactory/amani-sdk")
+        }
     }
 }
 
 rootProject.name = "BioMatchDemo"
 include(":app")
- 

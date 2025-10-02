@@ -36,6 +36,15 @@ android {
     }
     buildFeatures {
         compose = true
+        dataBinding = true
+    }
+
+
+    // Exclude conflicting or unnecessary metadata to avoid build issues
+    packaging {
+        resources {
+            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
+        }
     }
 }
 
@@ -56,4 +65,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.material.icons.extended.android)
+
+    // BioMatch SDK
+    implementation(libs.amani.sdk.biomatch)
+
+    // KYC SDK
+    implementation (libs.amani.sdk.kyc)
 }
