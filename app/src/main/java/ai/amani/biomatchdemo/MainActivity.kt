@@ -20,36 +20,14 @@ import android.view.ViewGroup
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -76,6 +54,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Configure KYC SDK
+        Amani.configure(
+            context = this,
+            server = PasswordProperties.SERVER_URL_KYC,
+            enabledFeatures = listOf(),
+            version = AmaniVersion.V2
+        )
+
+        // Configure BioMatch SDK
+        AmaniBioMatchSDK.configure(
+            context = this,
+            server = PasswordProperties.SERVER_URL,
+            token = PasswordProperties.TOKEN,
+        )
+        
         setContent {
             MaterialTheme {
                 MainNavigation()
@@ -122,11 +115,9 @@ fun MainNavigation() {
     ) {
         composable("home") {
             HomeScreen(
-                onKYCClick = {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        navController.navigate("kyc_selfie")
-                    }
-                },
+                onKYCClick = { CoroutineScope(Dispatchers.Main).launch {
+                    navController.navigate("kyc_selfie")
+                } },
                 onPaymentTabletClick = {
                     CoroutineScope(Dispatchers.Main).launch {
                         navController.navigate("payment_selfie")
@@ -140,8 +131,7 @@ fun MainNavigation() {
                 onNavigateToPin = {
                     CoroutineScope(Dispatchers.Main).launch {
                         navController.navigate("pin/kyc")
-                    }
-                },
+                    }},
                 onBack = { navController.popBackStack() },
                 onRejected = {
                     navController.popBackStack()
@@ -159,8 +149,7 @@ fun MainNavigation() {
                 onSelfieCaptured = {
                     CoroutineScope(Dispatchers.Main).launch {
                         navController.navigate("pin/payment")
-                    }
-                },
+                    }},
                 onBack = { navController.popBackStack() }
             )
         }
@@ -168,6 +157,7 @@ fun MainNavigation() {
         composable("pin/{flow}") { backStackEntry ->
             val flow = backStackEntry.arguments?.getString("flow") ?: ""
             PINScreen(
+                flow = flow,
                 onPinEntered = { pin ->
                     loading.value = true
                     when (flow) {
@@ -181,8 +171,7 @@ fun MainNavigation() {
                                             loading.value = false
                                             isSuccess.value = true
                                             alertTitle.value = "Success"
-                                            alertMessage.value =
-                                                "KYC process has been successfully completed!"
+                                            alertMessage.value = "KYC process has been successfully completed!"
                                             showAlert.value = true
                                         }
                                     }
@@ -222,10 +211,9 @@ fun MainNavigation() {
                                             loading.value = false
                                             isSuccess.value = false
                                             alertTitle.value = "Error"
-                                            alertMessage.value =
-                                                "Payment process has been failed! + " +
-                                                        "exception ${exception.message} + " +
-                                                        " ${exception.localizedMessage}"
+                                            alertMessage.value = "Payment process has been failed! + " +
+                                                    "exception ${exception.message} + " +
+                                                    " ${exception.localizedMessage}"
                                             showAlert.value = true
                                         }
                                     }
@@ -239,6 +227,7 @@ fun MainNavigation() {
         }
     }
 
+    // ✅ Loading göstergesi
     if (loading.value) {
         Box(
             modifier = Modifier
@@ -250,6 +239,7 @@ fun MainNavigation() {
         }
     }
 
+    // ✅ Alert Dialog (ikon ortada büyük)
     if (showAlert.value) {
         AlertDialog(
             onDismissRequest = {
@@ -305,16 +295,18 @@ fun MainNavigation() {
     }
 }
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PINScreen(onPinEntered: (String) -> Unit, onBack: () -> Unit) {
+fun PINScreen(flow: String, onPinEntered: (String) -> Unit, onBack: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
             title = { Text("PIN Entry") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             }
         )
@@ -349,7 +341,7 @@ fun PaymentSelfieScreen(onSelfieCaptured: (String) -> Unit, onBack: () -> Unit) 
             title = { Text("Selfie for Payment") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             }
         )
@@ -372,17 +364,13 @@ fun PaymentSelfieScreen(onSelfieCaptured: (String) -> Unit, onBack: () -> Unit) 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KYCSelfieScreen(
-    onNavigateToPin: () -> Unit,
-    onBack: () -> Unit,
-    onRejected: () -> Unit,
-    loaderState: (Boolean) -> Unit
-) {
+    onNavigateToPin: () -> Unit, onBack: () -> Unit, onRejected: () -> Unit, loaderState: (Boolean) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text("Selfie (For KYC)") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Back")
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                 }
             }
         )
@@ -409,7 +397,7 @@ fun KYCSelfieScreen(
                         override fun stepsResult(stepsResult: StepsResult?) {
                             stepsResult?.result?.forEach {
                                 if (it.title == "Selfie") {
-                                    when (it.status) {
+                                    when(it.status) {
                                         "APPROVED" -> {
                                             onNavigateToPin.invoke()
                                             Amani.sharedInstance().AmaniEvent().removeListener()
