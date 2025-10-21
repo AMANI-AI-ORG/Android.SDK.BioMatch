@@ -1,7 +1,7 @@
 [versions]
 agp = "8.10.1"
 amaniai = "3.6.12"
-biomatch = "1.0.01"
+biomatch = "1.1.0"
 kotlin = "2.0.21"
 coreKtx = "1.17.0"
 junit = "4.13.2"

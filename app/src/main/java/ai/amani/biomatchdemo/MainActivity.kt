@@ -194,13 +194,14 @@ fun MainNavigation() {
                             AmaniBioMatchSDK.Selfie().upload(
                                 pin = pin,
                                 callback = object : SelfieCallback {
-                                    override fun onSuccess() {
+                                    override fun onSuccess(profileID: String) {
                                         CoroutineScope(Dispatchers.Main).launch {
                                             delay(1000)
                                             loading.value = false
                                             isSuccess.value = true
                                             alertTitle.value = "Success"
-                                            alertMessage.value = "Payment is done!"
+                                            alertMessage.value = "Payment is done!" +
+                                                    " With profile ID: $profileID"
                                             showAlert.value = true
                                         }
                                     }
@@ -348,6 +349,8 @@ fun PaymentSelfieScreen(onSelfieCaptured: (String) -> Unit, onBack: () -> Unit) 
 
         val fragment = AmaniBioMatchSDK.Selfie().start(
             config = SelfieCaptureConfig(
+                autoSelfieEnabled = true,
+                manualCaptureButtonTimeOut = 34000,
                 manualCaptureButtonInnerColor = Color.Blue,
                 manualCaptureButtonOuterColor = Color.Blue,
                 manualCaptureButtonLoaderColor = Color.Blue
