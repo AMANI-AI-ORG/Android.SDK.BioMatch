@@ -194,7 +194,7 @@ fun MainNavigation() {
                             AmaniBioMatchSDK.Selfie().upload(
                                 pin = pin,
                                 callback = object : SelfieCallback {
-                                    override fun onSuccess(profileID: String) {
+                                    override fun onSuccess(profileID: String, documentID: String) {
                                         CoroutineScope(Dispatchers.Main).launch {
                                             delay(1000)
                                             loading.value = false
@@ -228,7 +228,6 @@ fun MainNavigation() {
         }
     }
 
-    // ✅ Loading göstergesi
     if (loading.value) {
         Box(
             modifier = Modifier
@@ -240,7 +239,6 @@ fun MainNavigation() {
         }
     }
 
-    // ✅ Alert Dialog (ikon ortada büyük)
     if (showAlert.value) {
         AlertDialog(
             onDismissRequest = {
