@@ -194,7 +194,7 @@ fun MainNavigation() {
                             AmaniBioMatchSDK.Selfie().upload(
                                 pin = pin,
                                 callback = object : SelfieCallback {
-                                    override fun onSuccess(profileID: String) {
+                                    override fun onSuccess(profileID: String, documentID: String) {
                                         CoroutineScope(Dispatchers.Main).launch {
                                             delay(1000)
                                             loading.value = false
